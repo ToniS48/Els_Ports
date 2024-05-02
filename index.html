@@ -1,0 +1,1988 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/filter.css">
+<link rel="stylesheet" href="css/nouislider.min.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet.wms.js"></script>
+        <script src="js/tailDT.js"></script>
+<script src="js/nouislider.min.js"></script>
+<script src="js/wNumb.js"></script>
+        <script src="data/Catlegcavitats_8.js"></script>
+        <script src="data/Villores_9.js"></script>
+        <script src="data/Villafranca_10.js"></script>
+        <script src="data/Vallibona_11.js"></script>
+        <script src="data/Sorita_12.js"></script>
+        <script src="data/Portell_13.js"></script>
+        <script src="data/Palanques_14.js"></script>
+        <script src="data/Olocau_15.js"></script>
+        <script src="data/Morella_16.js"></script>
+        <script src="data/Todolella_17.js"></script>
+        <script src="data/La_Mata_18.js"></script>
+        <script src="data/Herbes_19.js"></script>
+        <script src="data/Forcall_20.js"></script>
+        <script src="data/Cinctorres_21.js"></script>
+        <script src="data/Castellfort_22.js"></script>
+        <script src="data/Ares_23.js"></script>
+        <script src="data/ElsPorts_24.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+
+            if (e.target.feature.geometry.type === 'LineString' || e.target.feature.geometry.type === 'MultiLineString') {
+              highlightLayer.setStyle({
+                color: '#ffff00',
+              });
+            } else {
+              highlightLayer.setStyle({
+                fillColor: '#ffff00',
+                fillOpacity: 1
+              });
+            }
+        }
+        var map = L.map('map', {
+            zoomControl:true, maxZoom:28, minZoom:1
+        })
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        document.querySelector(".leaflet-popup-pane").addEventListener("load", function(event) {
+          var tagName = event.target.tagName,
+            popup = map._popup;
+          // Also check if flag is already set.
+          if (tagName === "IMG" && popup && !popup._updated) {
+            popup._updated = true; // Set flag to prevent looping.
+            popup.update();
+          }
+        }, true);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+            if (bounds_group.getLayers().length) {
+                map.fitBounds(bounds_group.getBounds());
+            }
+        }
+        map.createPane('pane_GoogleTerrain_0');
+        map.getPane('pane_GoogleTerrain_0').style.zIndex = 400;
+        var layer_GoogleTerrain_0 = L.tileLayer('https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleTerrain_0',
+            opacity: 1.0,
+            attribution: '<a href="https://www.google.at/permissions/geoguidelines/attr-guide.html">Map data ©2015 Google</a>',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 20
+        });
+        layer_GoogleTerrain_0;
+        map.addLayer(layer_GoogleTerrain_0);
+        map.createPane('pane_GoogleHybrid_1');
+        map.getPane('pane_GoogleHybrid_1').style.zIndex = 401;
+        var layer_GoogleHybrid_1 = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleHybrid_1',
+            opacity: 1.0,
+            attribution: '<a href="https://www.google.at/permissions/geoguidelines/attr-guide.html">Map data ©2015 Google</a>',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 20
+        });
+        layer_GoogleHybrid_1;
+        map.createPane('pane_LitologiatramasKarst1M_2');
+        map.getPane('pane_LitologiatramasKarst1M_2').style.zIndex = 402;
+        var layer_LitologiatramasKarst1M_2 = L.WMS.layer("https://mapas.igme.es/gis/services/Cartografia_Tematica/IGME_Karst_1M/MapServer/WMSServer", "1", {
+            pane: 'pane_LitologiatramasKarst1M_2',
+            format: 'image/png',
+            uppercase: true,
+            transparent: true,
+            continuousWorld : true,
+            tiled: true,
+            info_format: 'text/html',
+            opacity: 1,
+            identify: false,
+            attribution: '',
+        });
+        map.createPane('pane_IntensidadKarst1M_3');
+        map.getPane('pane_IntensidadKarst1M_3').style.zIndex = 403;
+        var layer_IntensidadKarst1M_3 = L.WMS.layer("https://mapas.igme.es/gis/services/Cartografia_Tematica/IGME_Karst_1M/MapServer/WMSServer", "0", {
+            pane: 'pane_IntensidadKarst1M_3',
+            format: 'image/png',
+            uppercase: true,
+            transparent: true,
+            continuousWorld : true,
+            tiled: true,
+            info_format: 'text/html',
+            opacity: 1,
+            identify: false,
+            attribution: '',
+        });
+        map.createPane('pane_ContactosylimitesKarst1M_4');
+        map.getPane('pane_ContactosylimitesKarst1M_4').style.zIndex = 404;
+        var layer_ContactosylimitesKarst1M_4 = L.WMS.layer("https://mapas.igme.es/gis/services/Cartografia_Tematica/IGME_Karst_1M/MapServer/WMSServer", "3", {
+            pane: 'pane_ContactosylimitesKarst1M_4',
+            format: 'image/png',
+            uppercase: true,
+            transparent: true,
+            continuousWorld : true,
+            tiled: true,
+            info_format: 'text/html',
+            opacity: 1,
+            identify: false,
+            attribution: '',
+        });
+        map.createPane('pane_Litologia_5');
+        map.getPane('pane_Litologia_5').style.zIndex = 405;
+        var layer_Litologia_5 = L.WMS.layer("https://terramapas.icv.gva.es/29_GeotecniaGuia", "litologia", {
+            pane: 'pane_Litologia_5',
+            format: 'image/png',
+            uppercase: true,
+            transparent: true,
+            continuousWorld : true,
+            tiled: true,
+            info_format: 'text/html',
+            opacity: 1,
+            identify: false,
+            attribution: '',
+        });
+        map.createPane('pane_Litomorfologia_6');
+        map.getPane('pane_Litomorfologia_6').style.zIndex = 406;
+        var layer_Litomorfologia_6 = L.WMS.layer("https://terramapas.icv.gva.es/29_GeotecniaGuia", "litomorfologia", {
+            pane: 'pane_Litomorfologia_6',
+            format: 'image/png',
+            uppercase: true,
+            transparent: true,
+            continuousWorld : true,
+            tiled: true,
+            info_format: 'text/html',
+            opacity: 1,
+            identify: false,
+            attribution: '',
+        });
+        map.createPane('pane_Calcriesdolomies_7');
+        map.getPane('pane_Calcriesdolomies_7').style.zIndex = 407;
+        var layer_Calcriesdolomies_7 = L.WMS.layer("https://terramapas.icv.gva.es/29_GeotecniaGuia", "rocas_calizas_dolomias", {
+            pane: 'pane_Calcriesdolomies_7',
+            format: 'image/png',
+            uppercase: true,
+            transparent: true,
+            continuousWorld : true,
+            tiled: true,
+            info_format: 'text/html',
+            opacity: 1,
+            identify: false,
+            attribution: '',
+        });
+        function pop_Catlegcavitats_8(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Nom Cavita</th>\
+                        <td class="visible-with-data" id="Nom Cavita">' + (feature.properties['Nom Cavita'] !== null ? autolinker.link(feature.properties['Nom Cavita'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Població</th>\
+                        <td class="visible-with-data" id="Població">' + (feature.properties['Població'] !== null ? autolinker.link(feature.properties['Població'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Génesis</th>\
+                        <td class="visible-with-data" id="Génesis">' + (feature.properties['Génesis'] !== null ? autolinker.link(feature.properties['Génesis'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Interès</th>\
+                        <td class="visible-with-data" id="Interès">' + (feature.properties['Interès'] !== null ? autolinker.link(feature.properties['Interès'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">R.Real</th>\
+                        <td class="visible-with-data" id="R.Real">' + (feature.properties['R.Real'] !== null ? autolinker.link(feature.properties['R.Real'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">R.Planta</th>\
+                        <td class="visible-with-data" id="R.Planta">' + (feature.properties['R.Planta'] !== null ? autolinker.link(feature.properties['R.Planta'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Prof.</th>\
+                        <td class="visible-with-data" id="Prof.">' + (feature.properties['Prof.'] !== null ? autolinker.link(feature.properties['Prof.'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Link'] !== null ? autolinker.link(feature.properties['Link'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Catlegcavitats_8_0(feature) {
+            switch(String(feature.properties['Génesis'])) {
+                case 'A1.- Cavidades en Fracturas Tectonicas':
+                    return {
+                pane: 'pane_Catlegcavitats_8',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(13,8,135,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'A2.- Cavidades Estructurales':
+                    return {
+                pane: 'pane_Catlegcavitats_8',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(55,4,154,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'B1.1- Sumideros Fósiles CON recorrido horinzontal':
+                    return {
+                pane: 'pane_Catlegcavitats_8',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(88,1,165,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'B1.2- Sumideros Fósiles SIN recorrido horinzontal':
+                    return {
+                pane: 'pane_Catlegcavitats_8',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(118,1,168,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'B2.- Surgéncias Fósiles':
+                    return {
+                pane: 'pane_Catlegcavitats_8',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(147,15,162,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'B3.- Cavidades Laberínticas Freáticas':
+                    return {
+                pane: 'pane_Catlegcavitats_8',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(172,38,148,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'C1.- Surgencias Activas Temporales (Ullals)':
+                    return {
+                pane: 'pane_Catlegcavitats_8',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(194,60,129,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'D1.- Surgencias Activas Permanentes':
+                    return {
+                pane: 'pane_Catlegcavitats_8',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(212,82,111,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'F1.- Abrigos / Covachos':
+                    return {
+                pane: 'pane_Catlegcavitats_8',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(228,104,94,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'F3.- Arcos Naturales':
+                    return {
+                pane: 'pane_Catlegcavitats_8',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(241,129,78,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'G1.- Clastos Desprendidos en el Exterior':
+                    return {
+                pane: 'pane_Catlegcavitats_8',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(249,156,61,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Z1.- Cavidades Artificiales':
+                    return {
+                pane: 'pane_Catlegcavitats_8',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(254,184,45,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'ZZ - Pendiente de Clasificar':
+                    return {
+                pane: 'pane_Catlegcavitats_8',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(251,216,36,1.0)',
+                interactive: true,
+            }
+                    break;
+                default:
+                    return {
+                pane: 'pane_Catlegcavitats_8',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(240,249,33,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Catlegcavitats_8');
+        map.getPane('pane_Catlegcavitats_8').style.zIndex = 408;
+        map.getPane('pane_Catlegcavitats_8').style['mix-blend-mode'] = 'normal';
+        var layer_Catlegcavitats_8 = new L.geoJson(json_Catlegcavitats_8, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Catlegcavitats_8',
+            layerName: 'layer_Catlegcavitats_8',
+            pane: 'pane_Catlegcavitats_8',
+            onEachFeature: pop_Catlegcavitats_8,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Catlegcavitats_8_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Catlegcavitats_8);
+        map.addLayer(layer_Catlegcavitats_8);
+        function pop_Villores_9(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INSPIREID'] !== null ? autolinker.link(feature.properties['INSPIREID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATIONALCO'] !== null ? autolinker.link(feature.properties['NATIONALCO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COUNTRY'] !== null ? autolinker.link(feature.properties['COUNTRY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEV'] !== null ? autolinker.link(feature.properties['NATLEV'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEVNAME'] !== null ? autolinker.link(feature.properties['NATLEVNAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LEGSTATUS'] !== null ? autolinker.link(feature.properties['LEGSTATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACCURACY'] !== null ? autolinker.link(feature.properties['ACCURACY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAME_BOUND'] !== null ? autolinker.link(feature.properties['NAME_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DATE_BOUND'] !== null ? autolinker.link(feature.properties['DATE_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['URL_RESOUR'] !== null ? autolinker.link(feature.properties['URL_RESOUR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Villores_9_0() {
+            return {
+                pane: 'pane_Villores_9',
+                opacity: 1,
+                color: 'rgba(243,166,178,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_Villores_9');
+        map.getPane('pane_Villores_9').style.zIndex = 409;
+        map.getPane('pane_Villores_9').style['mix-blend-mode'] = 'normal';
+        var layer_Villores_9 = new L.geoJson(json_Villores_9, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Villores_9',
+            layerName: 'layer_Villores_9',
+            pane: 'pane_Villores_9',
+            onEachFeature: pop_Villores_9,
+            style: style_Villores_9_0,
+        });
+        bounds_group.addLayer(layer_Villores_9);
+        map.addLayer(layer_Villores_9);
+        function pop_Villafranca_10(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INSPIREID'] !== null ? autolinker.link(feature.properties['INSPIREID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATIONALCO'] !== null ? autolinker.link(feature.properties['NATIONALCO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COUNTRY'] !== null ? autolinker.link(feature.properties['COUNTRY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEV'] !== null ? autolinker.link(feature.properties['NATLEV'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEVNAME'] !== null ? autolinker.link(feature.properties['NATLEVNAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LEGSTATUS'] !== null ? autolinker.link(feature.properties['LEGSTATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACCURACY'] !== null ? autolinker.link(feature.properties['ACCURACY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAME_BOUND'] !== null ? autolinker.link(feature.properties['NAME_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DATE_BOUND'] !== null ? autolinker.link(feature.properties['DATE_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['URL_RESOUR'] !== null ? autolinker.link(feature.properties['URL_RESOUR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Villafranca_10_0() {
+            return {
+                pane: 'pane_Villafranca_10',
+                opacity: 1,
+                color: 'rgba(213,180,60,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_Villafranca_10');
+        map.getPane('pane_Villafranca_10').style.zIndex = 410;
+        map.getPane('pane_Villafranca_10').style['mix-blend-mode'] = 'normal';
+        var layer_Villafranca_10 = new L.geoJson(json_Villafranca_10, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Villafranca_10',
+            layerName: 'layer_Villafranca_10',
+            pane: 'pane_Villafranca_10',
+            onEachFeature: pop_Villafranca_10,
+            style: style_Villafranca_10_0,
+        });
+        bounds_group.addLayer(layer_Villafranca_10);
+        map.addLayer(layer_Villafranca_10);
+        function pop_Vallibona_11(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INSPIREID'] !== null ? autolinker.link(feature.properties['INSPIREID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATIONALCO'] !== null ? autolinker.link(feature.properties['NATIONALCO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COUNTRY'] !== null ? autolinker.link(feature.properties['COUNTRY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEV'] !== null ? autolinker.link(feature.properties['NATLEV'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEVNAME'] !== null ? autolinker.link(feature.properties['NATLEVNAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LEGSTATUS'] !== null ? autolinker.link(feature.properties['LEGSTATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACCURACY'] !== null ? autolinker.link(feature.properties['ACCURACY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAME_BOUND'] !== null ? autolinker.link(feature.properties['NAME_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DATE_BOUND'] !== null ? autolinker.link(feature.properties['DATE_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['URL_RESOUR'] !== null ? autolinker.link(feature.properties['URL_RESOUR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Vallibona_11_0() {
+            return {
+                pane: 'pane_Vallibona_11',
+                opacity: 1,
+                color: 'rgba(133,182,111,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_Vallibona_11');
+        map.getPane('pane_Vallibona_11').style.zIndex = 411;
+        map.getPane('pane_Vallibona_11').style['mix-blend-mode'] = 'normal';
+        var layer_Vallibona_11 = new L.geoJson(json_Vallibona_11, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Vallibona_11',
+            layerName: 'layer_Vallibona_11',
+            pane: 'pane_Vallibona_11',
+            onEachFeature: pop_Vallibona_11,
+            style: style_Vallibona_11_0,
+        });
+        bounds_group.addLayer(layer_Vallibona_11);
+        map.addLayer(layer_Vallibona_11);
+        function pop_Sorita_12(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INSPIREID'] !== null ? autolinker.link(feature.properties['INSPIREID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATIONALCO'] !== null ? autolinker.link(feature.properties['NATIONALCO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COUNTRY'] !== null ? autolinker.link(feature.properties['COUNTRY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEV'] !== null ? autolinker.link(feature.properties['NATLEV'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEVNAME'] !== null ? autolinker.link(feature.properties['NATLEVNAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LEGSTATUS'] !== null ? autolinker.link(feature.properties['LEGSTATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACCURACY'] !== null ? autolinker.link(feature.properties['ACCURACY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAME_BOUND'] !== null ? autolinker.link(feature.properties['NAME_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DATE_BOUND'] !== null ? autolinker.link(feature.properties['DATE_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['URL_RESOUR'] !== null ? autolinker.link(feature.properties['URL_RESOUR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Sorita_12_0() {
+            return {
+                pane: 'pane_Sorita_12',
+                opacity: 1,
+                color: 'rgba(145,82,45,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_Sorita_12');
+        map.getPane('pane_Sorita_12').style.zIndex = 412;
+        map.getPane('pane_Sorita_12').style['mix-blend-mode'] = 'normal';
+        var layer_Sorita_12 = new L.geoJson(json_Sorita_12, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Sorita_12',
+            layerName: 'layer_Sorita_12',
+            pane: 'pane_Sorita_12',
+            onEachFeature: pop_Sorita_12,
+            style: style_Sorita_12_0,
+        });
+        bounds_group.addLayer(layer_Sorita_12);
+        map.addLayer(layer_Sorita_12);
+        function pop_Portell_13(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INSPIREID'] !== null ? autolinker.link(feature.properties['INSPIREID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATIONALCO'] !== null ? autolinker.link(feature.properties['NATIONALCO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COUNTRY'] !== null ? autolinker.link(feature.properties['COUNTRY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEV'] !== null ? autolinker.link(feature.properties['NATLEV'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEVNAME'] !== null ? autolinker.link(feature.properties['NATLEVNAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LEGSTATUS'] !== null ? autolinker.link(feature.properties['LEGSTATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACCURACY'] !== null ? autolinker.link(feature.properties['ACCURACY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAME_BOUND'] !== null ? autolinker.link(feature.properties['NAME_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DATE_BOUND'] !== null ? autolinker.link(feature.properties['DATE_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['URL_RESOUR'] !== null ? autolinker.link(feature.properties['URL_RESOUR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Portell_13_0() {
+            return {
+                pane: 'pane_Portell_13',
+                opacity: 1,
+                color: 'rgba(196,60,57,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_Portell_13');
+        map.getPane('pane_Portell_13').style.zIndex = 413;
+        map.getPane('pane_Portell_13').style['mix-blend-mode'] = 'normal';
+        var layer_Portell_13 = new L.geoJson(json_Portell_13, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Portell_13',
+            layerName: 'layer_Portell_13',
+            pane: 'pane_Portell_13',
+            onEachFeature: pop_Portell_13,
+            style: style_Portell_13_0,
+        });
+        bounds_group.addLayer(layer_Portell_13);
+        map.addLayer(layer_Portell_13);
+        function pop_Palanques_14(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INSPIREID'] !== null ? autolinker.link(feature.properties['INSPIREID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATIONALCO'] !== null ? autolinker.link(feature.properties['NATIONALCO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COUNTRY'] !== null ? autolinker.link(feature.properties['COUNTRY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEV'] !== null ? autolinker.link(feature.properties['NATLEV'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEVNAME'] !== null ? autolinker.link(feature.properties['NATLEVNAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LEGSTATUS'] !== null ? autolinker.link(feature.properties['LEGSTATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACCURACY'] !== null ? autolinker.link(feature.properties['ACCURACY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAME_BOUND'] !== null ? autolinker.link(feature.properties['NAME_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DATE_BOUND'] !== null ? autolinker.link(feature.properties['DATE_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['URL_RESOUR'] !== null ? autolinker.link(feature.properties['URL_RESOUR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Palanques_14_0() {
+            return {
+                pane: 'pane_Palanques_14',
+                opacity: 1,
+                color: 'rgba(225,89,137,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_Palanques_14');
+        map.getPane('pane_Palanques_14').style.zIndex = 414;
+        map.getPane('pane_Palanques_14').style['mix-blend-mode'] = 'normal';
+        var layer_Palanques_14 = new L.geoJson(json_Palanques_14, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Palanques_14',
+            layerName: 'layer_Palanques_14',
+            pane: 'pane_Palanques_14',
+            onEachFeature: pop_Palanques_14,
+            style: style_Palanques_14_0,
+        });
+        bounds_group.addLayer(layer_Palanques_14);
+        map.addLayer(layer_Palanques_14);
+        function pop_Olocau_15(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INSPIREID'] !== null ? autolinker.link(feature.properties['INSPIREID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATIONALCO'] !== null ? autolinker.link(feature.properties['NATIONALCO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COUNTRY'] !== null ? autolinker.link(feature.properties['COUNTRY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEV'] !== null ? autolinker.link(feature.properties['NATLEV'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEVNAME'] !== null ? autolinker.link(feature.properties['NATLEVNAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LEGSTATUS'] !== null ? autolinker.link(feature.properties['LEGSTATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACCURACY'] !== null ? autolinker.link(feature.properties['ACCURACY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAME_BOUND'] !== null ? autolinker.link(feature.properties['NAME_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DATE_BOUND'] !== null ? autolinker.link(feature.properties['DATE_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['URL_RESOUR'] !== null ? autolinker.link(feature.properties['URL_RESOUR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Olocau_15_0() {
+            return {
+                pane: 'pane_Olocau_15',
+                opacity: 1,
+                color: 'rgba(152,125,183,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_Olocau_15');
+        map.getPane('pane_Olocau_15').style.zIndex = 415;
+        map.getPane('pane_Olocau_15').style['mix-blend-mode'] = 'normal';
+        var layer_Olocau_15 = new L.geoJson(json_Olocau_15, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Olocau_15',
+            layerName: 'layer_Olocau_15',
+            pane: 'pane_Olocau_15',
+            onEachFeature: pop_Olocau_15,
+            style: style_Olocau_15_0,
+        });
+        bounds_group.addLayer(layer_Olocau_15);
+        map.addLayer(layer_Olocau_15);
+        function pop_Morella_16(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INSPIREID'] !== null ? autolinker.link(feature.properties['INSPIREID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATIONALCO'] !== null ? autolinker.link(feature.properties['NATIONALCO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COUNTRY'] !== null ? autolinker.link(feature.properties['COUNTRY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEV'] !== null ? autolinker.link(feature.properties['NATLEV'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEVNAME'] !== null ? autolinker.link(feature.properties['NATLEVNAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LEGSTATUS'] !== null ? autolinker.link(feature.properties['LEGSTATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACCURACY'] !== null ? autolinker.link(feature.properties['ACCURACY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAME_BOUND'] !== null ? autolinker.link(feature.properties['NAME_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DATE_BOUND'] !== null ? autolinker.link(feature.properties['DATE_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['URL_RESOUR'] !== null ? autolinker.link(feature.properties['URL_RESOUR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Morella_16_0() {
+            return {
+                pane: 'pane_Morella_16',
+                opacity: 1,
+                color: 'rgba(183,72,75,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_Morella_16');
+        map.getPane('pane_Morella_16').style.zIndex = 416;
+        map.getPane('pane_Morella_16').style['mix-blend-mode'] = 'normal';
+        var layer_Morella_16 = new L.geoJson(json_Morella_16, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Morella_16',
+            layerName: 'layer_Morella_16',
+            pane: 'pane_Morella_16',
+            onEachFeature: pop_Morella_16,
+            style: style_Morella_16_0,
+        });
+        bounds_group.addLayer(layer_Morella_16);
+        map.addLayer(layer_Morella_16);
+        function pop_Todolella_17(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INSPIREID'] !== null ? autolinker.link(feature.properties['INSPIREID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATIONALCO'] !== null ? autolinker.link(feature.properties['NATIONALCO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COUNTRY'] !== null ? autolinker.link(feature.properties['COUNTRY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEV'] !== null ? autolinker.link(feature.properties['NATLEV'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEVNAME'] !== null ? autolinker.link(feature.properties['NATLEVNAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LEGSTATUS'] !== null ? autolinker.link(feature.properties['LEGSTATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACCURACY'] !== null ? autolinker.link(feature.properties['ACCURACY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAME_BOUND'] !== null ? autolinker.link(feature.properties['NAME_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DATE_BOUND'] !== null ? autolinker.link(feature.properties['DATE_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['URL_RESOUR'] !== null ? autolinker.link(feature.properties['URL_RESOUR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Todolella_17_0() {
+            return {
+                pane: 'pane_Todolella_17',
+                opacity: 1,
+                color: 'rgba(232,113,141,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_Todolella_17');
+        map.getPane('pane_Todolella_17').style.zIndex = 417;
+        map.getPane('pane_Todolella_17').style['mix-blend-mode'] = 'normal';
+        var layer_Todolella_17 = new L.geoJson(json_Todolella_17, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Todolella_17',
+            layerName: 'layer_Todolella_17',
+            pane: 'pane_Todolella_17',
+            onEachFeature: pop_Todolella_17,
+            style: style_Todolella_17_0,
+        });
+        bounds_group.addLayer(layer_Todolella_17);
+        map.addLayer(layer_Todolella_17);
+        function pop_La_Mata_18(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INSPIREID'] !== null ? autolinker.link(feature.properties['INSPIREID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATIONALCO'] !== null ? autolinker.link(feature.properties['NATIONALCO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COUNTRY'] !== null ? autolinker.link(feature.properties['COUNTRY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEV'] !== null ? autolinker.link(feature.properties['NATLEV'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEVNAME'] !== null ? autolinker.link(feature.properties['NATLEVNAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LEGSTATUS'] !== null ? autolinker.link(feature.properties['LEGSTATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACCURACY'] !== null ? autolinker.link(feature.properties['ACCURACY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAME_BOUND'] !== null ? autolinker.link(feature.properties['NAME_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DATE_BOUND'] !== null ? autolinker.link(feature.properties['DATE_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['URL_RESOUR'] !== null ? autolinker.link(feature.properties['URL_RESOUR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_La_Mata_18_0() {
+            return {
+                pane: 'pane_La_Mata_18',
+                opacity: 1,
+                color: 'rgba(243,166,178,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_La_Mata_18');
+        map.getPane('pane_La_Mata_18').style.zIndex = 418;
+        map.getPane('pane_La_Mata_18').style['mix-blend-mode'] = 'normal';
+        var layer_La_Mata_18 = new L.geoJson(json_La_Mata_18, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_La_Mata_18',
+            layerName: 'layer_La_Mata_18',
+            pane: 'pane_La_Mata_18',
+            onEachFeature: pop_La_Mata_18,
+            style: style_La_Mata_18_0,
+        });
+        bounds_group.addLayer(layer_La_Mata_18);
+        map.addLayer(layer_La_Mata_18);
+        function pop_Herbes_19(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INSPIREID'] !== null ? autolinker.link(feature.properties['INSPIREID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATIONALCO'] !== null ? autolinker.link(feature.properties['NATIONALCO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COUNTRY'] !== null ? autolinker.link(feature.properties['COUNTRY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEV'] !== null ? autolinker.link(feature.properties['NATLEV'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEVNAME'] !== null ? autolinker.link(feature.properties['NATLEVNAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LEGSTATUS'] !== null ? autolinker.link(feature.properties['LEGSTATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACCURACY'] !== null ? autolinker.link(feature.properties['ACCURACY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAME_BOUND'] !== null ? autolinker.link(feature.properties['NAME_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DATE_BOUND'] !== null ? autolinker.link(feature.properties['DATE_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['URL_RESOUR'] !== null ? autolinker.link(feature.properties['URL_RESOUR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Herbes_19_0() {
+            return {
+                pane: 'pane_Herbes_19',
+                opacity: 1,
+                color: 'rgba(213,180,60,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Herbes_19');
+        map.getPane('pane_Herbes_19').style.zIndex = 419;
+        map.getPane('pane_Herbes_19').style['mix-blend-mode'] = 'normal';
+        var layer_Herbes_19 = new L.geoJson(json_Herbes_19, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Herbes_19',
+            layerName: 'layer_Herbes_19',
+            pane: 'pane_Herbes_19',
+            onEachFeature: pop_Herbes_19,
+            style: style_Herbes_19_0,
+        });
+        bounds_group.addLayer(layer_Herbes_19);
+        map.addLayer(layer_Herbes_19);
+        function pop_Forcall_20(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INSPIREID'] !== null ? autolinker.link(feature.properties['INSPIREID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATIONALCO'] !== null ? autolinker.link(feature.properties['NATIONALCO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COUNTRY'] !== null ? autolinker.link(feature.properties['COUNTRY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEV'] !== null ? autolinker.link(feature.properties['NATLEV'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEVNAME'] !== null ? autolinker.link(feature.properties['NATLEVNAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LEGSTATUS'] !== null ? autolinker.link(feature.properties['LEGSTATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACCURACY'] !== null ? autolinker.link(feature.properties['ACCURACY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAME_BOUND'] !== null ? autolinker.link(feature.properties['NAME_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DATE_BOUND'] !== null ? autolinker.link(feature.properties['DATE_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['URL_RESOUR'] !== null ? autolinker.link(feature.properties['URL_RESOUR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Forcall_20_0() {
+            return {
+                pane: 'pane_Forcall_20',
+                opacity: 1,
+                color: 'rgba(125,139,143,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_Forcall_20');
+        map.getPane('pane_Forcall_20').style.zIndex = 420;
+        map.getPane('pane_Forcall_20').style['mix-blend-mode'] = 'normal';
+        var layer_Forcall_20 = new L.geoJson(json_Forcall_20, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Forcall_20',
+            layerName: 'layer_Forcall_20',
+            pane: 'pane_Forcall_20',
+            onEachFeature: pop_Forcall_20,
+            style: style_Forcall_20_0,
+        });
+        bounds_group.addLayer(layer_Forcall_20);
+        map.addLayer(layer_Forcall_20);
+        function pop_Cinctorres_21(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INSPIREID'] !== null ? autolinker.link(feature.properties['INSPIREID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATIONALCO'] !== null ? autolinker.link(feature.properties['NATIONALCO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COUNTRY'] !== null ? autolinker.link(feature.properties['COUNTRY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEV'] !== null ? autolinker.link(feature.properties['NATLEV'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEVNAME'] !== null ? autolinker.link(feature.properties['NATLEVNAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LEGSTATUS'] !== null ? autolinker.link(feature.properties['LEGSTATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACCURACY'] !== null ? autolinker.link(feature.properties['ACCURACY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAME_BOUND'] !== null ? autolinker.link(feature.properties['NAME_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DATE_BOUND'] !== null ? autolinker.link(feature.properties['DATE_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['URL_RESOUR'] !== null ? autolinker.link(feature.properties['URL_RESOUR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Cinctorres_21_0() {
+            return {
+                pane: 'pane_Cinctorres_21',
+                opacity: 1,
+                color: 'rgba(190,178,151,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_Cinctorres_21');
+        map.getPane('pane_Cinctorres_21').style.zIndex = 421;
+        map.getPane('pane_Cinctorres_21').style['mix-blend-mode'] = 'normal';
+        var layer_Cinctorres_21 = new L.geoJson(json_Cinctorres_21, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Cinctorres_21',
+            layerName: 'layer_Cinctorres_21',
+            pane: 'pane_Cinctorres_21',
+            onEachFeature: pop_Cinctorres_21,
+            style: style_Cinctorres_21_0,
+        });
+        bounds_group.addLayer(layer_Cinctorres_21);
+        map.addLayer(layer_Cinctorres_21);
+        function pop_Castellfort_22(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INSPIREID'] !== null ? autolinker.link(feature.properties['INSPIREID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATIONALCO'] !== null ? autolinker.link(feature.properties['NATIONALCO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COUNTRY'] !== null ? autolinker.link(feature.properties['COUNTRY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEV'] !== null ? autolinker.link(feature.properties['NATLEV'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEVNAME'] !== null ? autolinker.link(feature.properties['NATLEVNAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LEGSTATUS'] !== null ? autolinker.link(feature.properties['LEGSTATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACCURACY'] !== null ? autolinker.link(feature.properties['ACCURACY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAME_BOUND'] !== null ? autolinker.link(feature.properties['NAME_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DATE_BOUND'] !== null ? autolinker.link(feature.properties['DATE_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['URL_RESOUR'] !== null ? autolinker.link(feature.properties['URL_RESOUR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Castellfort_22_0() {
+            return {
+                pane: 'pane_Castellfort_22',
+                opacity: 1,
+                color: 'rgba(229,182,54,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_Castellfort_22');
+        map.getPane('pane_Castellfort_22').style.zIndex = 422;
+        map.getPane('pane_Castellfort_22').style['mix-blend-mode'] = 'normal';
+        var layer_Castellfort_22 = new L.geoJson(json_Castellfort_22, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Castellfort_22',
+            layerName: 'layer_Castellfort_22',
+            pane: 'pane_Castellfort_22',
+            onEachFeature: pop_Castellfort_22,
+            style: style_Castellfort_22_0,
+        });
+        bounds_group.addLayer(layer_Castellfort_22);
+        map.addLayer(layer_Castellfort_22);
+        function pop_Ares_23(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INSPIREID'] !== null ? autolinker.link(feature.properties['INSPIREID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATIONALCO'] !== null ? autolinker.link(feature.properties['NATIONALCO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COUNTRY'] !== null ? autolinker.link(feature.properties['COUNTRY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEV'] !== null ? autolinker.link(feature.properties['NATLEV'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEVNAME'] !== null ? autolinker.link(feature.properties['NATLEVNAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LEGSTATUS'] !== null ? autolinker.link(feature.properties['LEGSTATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACCURACY'] !== null ? autolinker.link(feature.properties['ACCURACY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAME_BOUND'] !== null ? autolinker.link(feature.properties['NAME_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DATE_BOUND'] !== null ? autolinker.link(feature.properties['DATE_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['URL_RESOUR'] !== null ? autolinker.link(feature.properties['URL_RESOUR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Ares_23_0() {
+            return {
+                pane: 'pane_Ares_23',
+                opacity: 1,
+                color: 'rgba(190,207,80,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_Ares_23');
+        map.getPane('pane_Ares_23').style.zIndex = 423;
+        map.getPane('pane_Ares_23').style['mix-blend-mode'] = 'normal';
+        var layer_Ares_23 = new L.geoJson(json_Ares_23, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Ares_23',
+            layerName: 'layer_Ares_23',
+            pane: 'pane_Ares_23',
+            onEachFeature: pop_Ares_23,
+            style: style_Ares_23_0,
+        });
+        bounds_group.addLayer(layer_Ares_23);
+        map.addLayer(layer_Ares_23);
+        function pop_ElsPorts_24(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INSPIREID'] !== null ? autolinker.link(feature.properties['INSPIREID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATIONALCO'] !== null ? autolinker.link(feature.properties['NATIONALCO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COUNTRY'] !== null ? autolinker.link(feature.properties['COUNTRY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEV'] !== null ? autolinker.link(feature.properties['NATLEV'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NATLEVNAME'] !== null ? autolinker.link(feature.properties['NATLEVNAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LEGSTATUS'] !== null ? autolinker.link(feature.properties['LEGSTATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACCURACY'] !== null ? autolinker.link(feature.properties['ACCURACY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAME_BOUND'] !== null ? autolinker.link(feature.properties['NAME_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DATE_BOUND'] !== null ? autolinker.link(feature.properties['DATE_BOUND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['URL_RESOUR'] !== null ? autolinker.link(feature.properties['URL_RESOUR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_ElsPorts_24_0() {
+            return {
+                pane: 'pane_ElsPorts_24',
+                opacity: 1,
+                color: 'rgba(231,113,72,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 2.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_ElsPorts_24');
+        map.getPane('pane_ElsPorts_24').style.zIndex = 424;
+        map.getPane('pane_ElsPorts_24').style['mix-blend-mode'] = 'normal';
+        var layer_ElsPorts_24 = new L.geoJson(json_ElsPorts_24, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_ElsPorts_24',
+            layerName: 'layer_ElsPorts_24',
+            pane: 'pane_ElsPorts_24',
+            onEachFeature: pop_ElsPorts_24,
+            style: style_ElsPorts_24_0,
+        });
+        bounds_group.addLayer(layer_ElsPorts_24);
+        map.addLayer(layer_ElsPorts_24);
+        var baseMaps = {};
+        var overlaysTree = [
+        {label: '<b>Municipis</b>', selectAllCheckbox: true, children: [
+            {label: '<img src="legend/ElsPorts_24.png" /> Els Ports', layer: layer_ElsPorts_24},
+            {label: '<img src="legend/Ares_23.png" /> Ares', layer: layer_Ares_23},
+            {label: '<img src="legend/Castellfort_22.png" /> Castellfort', layer: layer_Castellfort_22},
+            {label: '<img src="legend/Cinctorres_21.png" /> Cinctorres', layer: layer_Cinctorres_21},
+            {label: '<img src="legend/Forcall_20.png" /> Forcall', layer: layer_Forcall_20},
+            {label: '<img src="legend/Herbes_19.png" /> Herbes', layer: layer_Herbes_19},
+            {label: '<img src="legend/La_Mata_18.png" /> La_Mata', layer: layer_La_Mata_18},
+            {label: '<img src="legend/Todolella_17.png" /> Todolella', layer: layer_Todolella_17},
+            {label: '<img src="legend/Morella_16.png" /> Morella', layer: layer_Morella_16},
+            {label: '<img src="legend/Olocau_15.png" /> Olocau', layer: layer_Olocau_15},
+            {label: '<img src="legend/Palanques_14.png" /> Palanques', layer: layer_Palanques_14},
+            {label: '<img src="legend/Portell_13.png" /> Portell', layer: layer_Portell_13},
+            {label: '<img src="legend/Sorita_12.png" /> Sorita', layer: layer_Sorita_12},
+            {label: '<img src="legend/Vallibona_11.png" /> Vallibona', layer: layer_Vallibona_11},
+            {label: '<img src="legend/Villafranca_10.png" /> Villafranca', layer: layer_Villafranca_10},
+            {label: '<img src="legend/Villores_9.png" /> Villores', layer: layer_Villores_9},]},
+            {label: 'Catàleg cavitats<br /><table><tr><td style="text-align: center;"><img src="legend/Catlegcavitats_8_A1CavidadesenFracturasTectonicas0.png" /></td><td>A1.- Cavidades en Fracturas Tectonicas</td></tr><tr><td style="text-align: center;"><img src="legend/Catlegcavitats_8_A2CavidadesEstructurales1.png" /></td><td>A2.- Cavidades Estructurales</td></tr><tr><td style="text-align: center;"><img src="legend/Catlegcavitats_8_B11SumiderosFósilesCONrecorridohorinzontal2.png" /></td><td>B1.1- Sumideros Fósiles CON recorrido horinzontal</td></tr><tr><td style="text-align: center;"><img src="legend/Catlegcavitats_8_B12SumiderosFósilesSINrecorridohorinzontal3.png" /></td><td>B1.2- Sumideros Fósiles SIN recorrido horinzontal</td></tr><tr><td style="text-align: center;"><img src="legend/Catlegcavitats_8_B2SurgénciasFósiles4.png" /></td><td>B2.- Surgéncias Fósiles</td></tr><tr><td style="text-align: center;"><img src="legend/Catlegcavitats_8_B3CavidadesLaberínticasFreáticas5.png" /></td><td>B3.- Cavidades Laberínticas Freáticas</td></tr><tr><td style="text-align: center;"><img src="legend/Catlegcavitats_8_C1SurgenciasActivasTemporalesUllals6.png" /></td><td>C1.- Surgencias Activas Temporales (Ullals)</td></tr><tr><td style="text-align: center;"><img src="legend/Catlegcavitats_8_D1SurgenciasActivasPermanentes7.png" /></td><td>D1.- Surgencias Activas Permanentes</td></tr><tr><td style="text-align: center;"><img src="legend/Catlegcavitats_8_F1AbrigosCovachos8.png" /></td><td>F1.- Abrigos / Covachos</td></tr><tr><td style="text-align: center;"><img src="legend/Catlegcavitats_8_F3ArcosNaturales9.png" /></td><td>F3.- Arcos Naturales</td></tr><tr><td style="text-align: center;"><img src="legend/Catlegcavitats_8_G1ClastosDesprendidosenelExterior10.png" /></td><td>G1.- Clastos Desprendidos en el Exterior</td></tr><tr><td style="text-align: center;"><img src="legend/Catlegcavitats_8_Z1CavidadesArtificiales11.png" /></td><td>Z1.- Cavidades Artificiales</td></tr><tr><td style="text-align: center;"><img src="legend/Catlegcavitats_8_ZZPendientedeClasificar12.png" /></td><td>ZZ - Pendiente de Clasificar</td></tr><tr><td style="text-align: center;"><img src="legend/Catlegcavitats_8_13.png" /></td><td></td></tr></table>', layer: layer_Catlegcavitats_8},
+        {label: '<b>Litologia</b>', selectAllCheckbox: true, children: [
+            {label: "Calcàries, dolomies", layer: layer_Calcriesdolomies_7},
+            {label: "| Litomorfologia", layer: layer_Litomorfologia_6},
+            {label: " Litologia", layer: layer_Litologia_5},]},
+        {label: '<b>Karst</b>', selectAllCheckbox: true, children: [
+            {label: "Contactos y limites Karst 1M", layer: layer_ContactosylimitesKarst1M_4},
+            {label: "Intensidad Karst 1M", layer: layer_IntensidadKarst1M_3},
+            {label: "Litologia tramas Karst 1M", layer: layer_LitologiatramasKarst1M_2},]},
+            {label: "Google Hybrid", layer: layer_GoogleHybrid_1},
+            {label: "Google Terrain", layer: layer_GoogleTerrain_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: true,
+        });
+        lay.addTo(map);
+        setBounds();
+        var mapDiv = document.getElementById('map');
+        var row = document.createElement('div');
+        row.className="row";
+        row.id="all";
+        row.style.height = "100%";
+        var col1 = document.createElement('div');
+        col1.className="col9";
+        col1.id = "mapWindow";
+        col1.style.height = "99%";
+        col1.style.width = "80%";
+        col1.style.display = "inline-block";
+        var col2 = document.createElement('div');
+        col2.className="col3";
+        col2.id = "menu";
+        col2.style.display = "inline-block";
+        mapDiv.parentNode.insertBefore(row, mapDiv);
+        document.getElementById("all").appendChild(col1);
+        document.getElementById("all").appendChild(col2);
+        col1.appendChild(mapDiv)
+        var Filters = {"Génesis": "str","Població": "str"};
+        function filterFunc() {
+          map.eachLayer(function(lyr){
+          if ("options" in lyr && "dataVar" in lyr["options"]){
+            features = this[lyr["options"]["dataVar"]].features.slice(0);
+            try{
+              for (key in Filters){
+                keyS = key.replace(/[^a-zA-Z0-9_]/g, "")
+                if (Filters[key] == "str" || Filters[key] == "bool"){
+                  var selection = [];
+                  var options = document.getElementById("sel_" + keyS).options
+                  for (var i=0; i < options.length; i++) {
+                    if (options[i].selected) selection.push(options[i].value);
+                  }
+                    try{
+                      if (key in features[0].properties){
+                        for (i = features.length - 1;
+                          i >= 0; --i){
+                          if (selection.indexOf(
+                          features[i].properties[key])<0
+                          && selection.length>0) {
+                          features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                  }
+                }
+                if (Filters[key] == "int"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (parseInt(features[i].properties[key])
+                          < sliderVals[0]
+                          || parseInt(features[i].properties[key])
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "real"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (features[i].properties[key]
+                          < sliderVals[0]
+                          || features[i].properties[key]
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "date"
+                  || Filters[key] == "datetime"
+                  || Filters[key] == "time"){
+                  try{
+                    if (key in features[0].properties){
+                      HTMLkey = key.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, '');
+                      startdate = document.getElementById("dat_" +
+                        HTMLkey + "_date1").value.replace(" ", "T");
+                      enddate = document.getElementById("dat_" +
+                        HTMLkey + "_date2").value.replace(" ", "T");
+                      for (i = features.length - 1; i >= 0; --i){
+                        if (features[i].properties[key] < startdate
+                          || features[i].properties[key] > enddate){
+                          features.splice(i,1);
+                        }
+                      }
+                    }
+                  } catch(err){
+                  }
+                }
+              }
+            } catch(err){
+            }
+          this[lyr["options"]["layerName"]].clearLayers();
+          this[lyr["options"]["layerName"]].addData(features);
+          }
+          })
+        }
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Gnesis = document.createElement('div');
+            div_Gnesis.id = "div_Gnesis";
+            div_Gnesis.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Gnesis);
+            sel_Gnesis = document.createElement('select');
+            sel_Gnesis.multiple = true;
+            sel_Gnesis.size = 10;
+            sel_Gnesis.id = "sel_Gnesis";
+            var Gnesis_options_str = "<option value='' unselected></option>";
+            sel_Gnesis.onchange = function(){filterFunc()};
+            Gnesis_options_str  += '<option value="NULL">NULL</option>';
+            Gnesis_options_str  += '<option value="A1.- Cavidades en Fracturas Tectonicas">A1.- Cavidades en Fracturas Tectonicas</option>';
+            Gnesis_options_str  += '<option value="A2.- Cavidades Estructurales">A2.- Cavidades Estructurales</option>';
+            Gnesis_options_str  += '<option value="B1.1- Sumideros Fósiles CON recorrido horinzontal">B1.1- Sumideros Fósiles CON recorrido horinzontal</option>';
+            Gnesis_options_str  += '<option value="B1.2- Sumideros Fósiles SIN recorrido horinzontal">B1.2- Sumideros Fósiles SIN recorrido horinzontal</option>';
+            Gnesis_options_str  += '<option value="B2.- Surgéncias Fósiles">B2.- Surgéncias Fósiles</option>';
+            Gnesis_options_str  += '<option value="B3.- Cavidades Laberínticas Freáticas">B3.- Cavidades Laberínticas Freáticas</option>';
+            Gnesis_options_str  += '<option value="C1.- Surgencias Activas Temporales (Ullals)">C1.- Surgencias Activas Temporales (Ullals)</option>';
+            Gnesis_options_str  += '<option value="D1.- Surgencias Activas Permanentes">D1.- Surgencias Activas Permanentes</option>';
+            Gnesis_options_str  += '<option value="F1.- Abrigos / Covachos">F1.- Abrigos / Covachos</option>';
+            Gnesis_options_str  += '<option value="F3.- Arcos Naturales">F3.- Arcos Naturales</option>';
+            Gnesis_options_str  += '<option value="G1.- Clastos Desprendidos en el Exterior">G1.- Clastos Desprendidos en el Exterior</option>';
+            Gnesis_options_str  += '<option value="Z1.- Cavidades Artificiales">Z1.- Cavidades Artificiales</option>';
+            Gnesis_options_str  += '<option value="ZZ - Pendiente de Clasificar">ZZ - Pendiente de Clasificar</option>';
+            sel_Gnesis.innerHTML = Gnesis_options_str;
+            div_Gnesis.appendChild(sel_Gnesis);
+            var lab_Gnesis = document.createElement('div');
+            lab_Gnesis.innerHTML = 'Génesis';
+            lab_Gnesis.className = 'filterlabel';
+            div_Gnesis.appendChild(lab_Gnesis);
+            var reset_Gnesis = document.createElement('div');
+            reset_Gnesis.innerHTML = 'clear filter';
+            reset_Gnesis.className = 'filterlabel';
+            reset_Gnesis.onclick = function() {
+                var options = document.getElementById("sel_Gnesis").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Gnesis.appendChild(reset_Gnesis);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Poblaci = document.createElement('div');
+            div_Poblaci.id = "div_Poblaci";
+            div_Poblaci.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Poblaci);
+            sel_Poblaci = document.createElement('select');
+            sel_Poblaci.multiple = true;
+            sel_Poblaci.size = 10;
+            sel_Poblaci.id = "sel_Poblaci";
+            var Poblaci_options_str = "<option value='' unselected></option>";
+            sel_Poblaci.onchange = function(){filterFunc()};
+            Poblaci_options_str  += '<option value="NULL">NULL</option>';
+            Poblaci_options_str  += '<option value="Ares del Maestrat">Ares del Maestrat</option>';
+            Poblaci_options_str  += '<option value="Castellfort">Castellfort</option>';
+            Poblaci_options_str  += '<option value="Cinctorres">Cinctorres</option>';
+            Poblaci_options_str  += '<option value="Forcall">Forcall</option>';
+            Poblaci_options_str  += '<option value="Herbés">Herbés</option>';
+            Poblaci_options_str  += '<option value="Morella">Morella</option>';
+            Poblaci_options_str  += '<option value="Olocau del Rey">Olocau del Rey</option>';
+            Poblaci_options_str  += '<option value="Palanques">Palanques</option>';
+            Poblaci_options_str  += '<option value="Portell de Morella">Portell de Morella</option>';
+            Poblaci_options_str  += '<option value="Todolella">Todolella</option>';
+            Poblaci_options_str  += '<option value="Vallibona">Vallibona</option>';
+            Poblaci_options_str  += '<option value="Villafranca del Cid">Villafranca del Cid</option>';
+            Poblaci_options_str  += '<option value="Villores">Villores</option>';
+            Poblaci_options_str  += '<option value="Zorita del Maestrazgo">Zorita del Maestrazgo</option>';
+            sel_Poblaci.innerHTML = Poblaci_options_str;
+            div_Poblaci.appendChild(sel_Poblaci);
+            var lab_Poblaci = document.createElement('div');
+            lab_Poblaci.innerHTML = 'Població';
+            lab_Poblaci.className = 'filterlabel';
+            div_Poblaci.appendChild(lab_Poblaci);
+            var reset_Poblaci = document.createElement('div');
+            reset_Poblaci.innerHTML = 'clear filter';
+            reset_Poblaci.className = 'filterlabel';
+            reset_Poblaci.onclick = function() {
+                var options = document.getElementById("sel_Poblaci").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Poblaci.appendChild(reset_Poblaci);
+        </script>
+    </body>
+</html>
